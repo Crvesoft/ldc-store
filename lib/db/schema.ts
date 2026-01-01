@@ -181,6 +181,18 @@ export const announcements = pgTable("announcements", {
 });
 
 // ============================================
+// Login Rate Limits Table (登录限流)
+// ============================================
+
+export const loginRateLimits = pgTable("login_rate_limits", {
+  identifier: text("identifier").primaryKey(),
+  count: integer("count").default(0).notNull(),
+  firstAttemptAt: timestamp("first_attempt_at", { withTimezone: true }).defaultNow().notNull(),
+  lastAttemptAt: timestamp("last_attempt_at", { withTimezone: true }).defaultNow().notNull(),
+  blockedUntil: timestamp("blocked_until", { withTimezone: true }),
+});
+
+// ============================================
 // Relations
 // ============================================
 
@@ -240,4 +252,3 @@ export type NewAnnouncement = typeof announcements.$inferInsert;
 export type CardStatus = (typeof cardStatusEnum.enumValues)[number];
 export type OrderStatus = (typeof orderStatusEnum.enumValues)[number];
 export type PaymentMethod = (typeof paymentMethodEnum.enumValues)[number];
-

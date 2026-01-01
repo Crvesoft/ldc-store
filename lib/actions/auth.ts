@@ -30,7 +30,7 @@ export async function adminLogin(password: string): Promise<LoginResult> {
   const clientIP = getClientIP(headersList);
 
   // 检查速率限制
-  const rateLimit = checkRateLimit(clientIP);
+  const rateLimit = await checkRateLimit(clientIP);
   if (!rateLimit.success) {
     return {
       success: false,
@@ -59,7 +59,7 @@ export async function adminLogin(password: string): Promise<LoginResult> {
     // signIn 成功时不会返回 error
     if (result?.error) {
       // 登录失败，记录失败尝试
-      const failResult = recordFailedAttempt(clientIP);
+      const failResult = await recordFailedAttempt(clientIP);
       
       let message = "密码错误";
       if (failResult.blocked) {
@@ -77,7 +77,7 @@ export async function adminLogin(password: string): Promise<LoginResult> {
     }
 
     // 登录成功，清除速率限制记录
-    clearRateLimit(clientIP);
+    await clearRateLimit(clientIP);
 
     return {
       success: true,
@@ -85,7 +85,7 @@ export async function adminLogin(password: string): Promise<LoginResult> {
     };
   } catch (error) {
     // NextAuth 登录失败会抛出错误
-    const failResult = recordFailedAttempt(clientIP);
+    const failResult = await recordFailedAttempt(clientIP);
 
     let message = "密码错误";
     if (failResult.blocked) {
@@ -111,4 +111,3 @@ export async function adminLogin(password: string): Promise<LoginResult> {
     };
   }
 }
-

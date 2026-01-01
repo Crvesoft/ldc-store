@@ -1,5 +1,7 @@
 import type { NextConfig } from "next";
 
+const allowAllHttpsImages = process.env.NODE_ENV === "development";
+
 const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
@@ -23,10 +25,14 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "via.placeholder.com",
       },
-      {
-        protocol: "https",
-        hostname: "**", // 允许所有 HTTPS 图片（开发环境方便，生产环境建议限制）
-      },
+      ...(allowAllHttpsImages
+        ? [
+            {
+              protocol: "https" as const,
+              hostname: "**", // 仅开发环境放开，避免生产环境扩大攻击面
+            },
+          ]
+        : []),
     ],
   },
 };

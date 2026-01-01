@@ -92,6 +92,8 @@
 
 ### 步骤 5：初始化数据库
 
+> 提示：本仓库默认 `vercel.json` 在 **Production** 构建阶段会自动执行 `pnpm db:push`（Preview 不会执行），如果部署成功且数据库已建表，可跳过本步骤；若自动推表失败，再按以下方式手动执行。
+
 部署完成后，你需要初始化数据库表结构：
 
 **方式 A：使用 Vercel CLI（推荐）**
@@ -293,4 +295,3 @@ vercel --prod
 - [Drizzle ORM 文档](https://orm.drizzle.team/docs)
 - [Linux DO Credit](https://credit.linux.do)
 - [Linux DO Connect](https://connect.linux.do)
-

@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { ChevronLeft } from "lucide-react";
 import { OrderForm } from "./order-form";
+import { renderMarkdownToSafeHtml } from "@/lib/markdown";
 
 interface ProductPageProps {
   params: Promise<{ slug: string }>;
@@ -36,6 +37,9 @@ export default async function ProductPage({ params }: ProductPageProps) {
   const hasDiscount =
     product.originalPrice &&
     parseFloat(product.originalPrice) > parseFloat(product.price);
+  const contentHtml = product.content
+    ? renderMarkdownToSafeHtml(product.content)
+    : "";
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-6">
@@ -107,14 +111,14 @@ export default async function ProductPage({ params }: ProductPageProps) {
       )}
 
       {/* Product Content */}
-      {product.content && (
+      {contentHtml && (
         <>
           <Separator className="my-6" />
           <div>
             <h2 className="mb-3 font-medium">商品详情</h2>
             <div
               className="prose prose-sm prose-zinc max-w-none dark:prose-invert"
-              dangerouslySetInnerHTML={{ __html: product.content }}
+              dangerouslySetInnerHTML={{ __html: contentHtml }}
             />
           </div>
         </>

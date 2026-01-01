@@ -150,11 +150,12 @@ export function createPayment(
     sign_type: "MD5",
   } as Record<string, string>;
 
-  // 调试日志
-  console.log("LDC 支付表单数据:", {
-    actionUrl: `${gateway}/pay/submit.php`,
-    params: formParams,
-  });
+  if (process.env.NODE_ENV === "development") {
+    console.log("LDC 支付表单数据:", {
+      actionUrl: `${gateway}/pay/submit.php`,
+      params: formParams,
+    });
+  }
 
   return {
     actionUrl: `${gateway}/pay/submit.php`,
@@ -223,4 +224,3 @@ export async function refundOrder(
 }
 
 export type { PaymentParams, NotifyParams, OrderQueryResult };
-

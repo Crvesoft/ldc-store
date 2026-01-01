@@ -160,6 +160,12 @@ export async function getProductBySlug(slug: string) {
  * 获取商品详情（通过 ID）
  */
 export async function getProductById(id: string) {
+  try {
+    await requireAdmin();
+  } catch {
+    return null;
+  }
+
   const product = await db.query.products.findFirst({
     where: eq(products.id, id),
     with: {
@@ -428,4 +434,3 @@ export async function toggleProductActive(id: string) {
     return { success: false, message: "操作失败" };
   }
 }
-
