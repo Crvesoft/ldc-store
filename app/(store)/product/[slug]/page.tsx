@@ -61,14 +61,6 @@ export default async function ProductPage({ params }: ProductPageProps) {
         返回首页
       </Link>
 
-      {/* Images */}
-      {uniqueImageUrls.length > 0 && (
-        <ProductImageGallery
-          productName={product.name}
-          images={uniqueImageUrls}
-        />
-      )}
-
       {/* Header */}
       <div className="mb-6">
         <div className="flex items-start justify-between gap-4">
@@ -128,15 +120,23 @@ export default async function ProductPage({ params }: ProductPageProps) {
       )}
 
       {/* Product Content */}
-      {contentHtml && (
+      {(contentHtml || uniqueImageUrls.length > 0) && (
         <>
           <Separator className="my-6" />
           <div>
             <h2 className="mb-3 font-medium">商品详情</h2>
-            <div
-              className="prose prose-sm prose-zinc max-w-none dark:prose-invert"
-              dangerouslySetInnerHTML={{ __html: contentHtml }}
-            />
+            {uniqueImageUrls.length > 0 && (
+              <ProductImageGallery
+                productName={product.name}
+                images={uniqueImageUrls}
+              />
+            )}
+            {contentHtml && (
+              <div
+                className="prose prose-sm prose-zinc max-w-none dark:prose-invert"
+                dangerouslySetInnerHTML={{ __html: contentHtml }}
+              />
+            )}
           </div>
         </>
       )}
