@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { User, LogOut, Package, Search, Store } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -22,9 +22,17 @@ interface HeaderProps {
   siteName?: string;
 }
 
+type StoreIconEasterEggVariant = "default" | "mint" | "amber" | "pink";
+
 export function Header({ siteName = "LDC Store" }: HeaderProps) {
   const { data: session, status } = useSession();
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
+  const [storeIconEasterEggKey, setStoreIconEasterEggKey] = useState(0);
+  const [storeIconVariant, setStoreIconVariant] =
+    useState<StoreIconEasterEggVariant>("default");
+  const storeIconResetTimerRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null
+  );
 
   // 检查是否是 Linux DO 登录用户
   const user = session?.user as { 
@@ -45,12 +53,62 @@ export function Header({ siteName = "LDC Store" }: HeaderProps) {
     signOut({ callbackUrl: "/" });
   };
 
+  const triggerStoreIconEasterEgg = () => {
+    // CSS animation 在 class 不变时可能不会重新播放；通过 key 强制重挂载来稳定触发“抖动彩蛋”
+    setStoreIconEasterEggKey((prev) => prev + 1);
+
+    setStoreIconVariant((current) => {
+      const variants: StoreIconEasterEggVariant[] = ["mint", "amber", "pink"];
+      if (variants.length === 0) return "default";
+      const randomIndex = Math.floor(Math.random() * variants.length);
+      const picked = variants[randomIndex];
+      // 尽量避免连续两次同色，提升“彩蛋变化”的观感
+      if (picked === current && variants.length > 1) {
+        return variants[(randomIndex + 1) % variants.length];
+      }
+      return picked;
+    });
+
+    // 彩蛋应该是“短暂反馈”而不是“状态”，自动回到默认样式避免误解
+    if (storeIconResetTimerRef.current) {
+      clearTimeout(storeIconResetTimerRef.current);
+    }
+    storeIconResetTimerRef.current = setTimeout(() => {
+      setStoreIconVariant("default");
+    }, 1200);
+  };
+
+  useEffect(() => {
+    return () => {
+      if (storeIconResetTimerRef.current) {
+        clearTimeout(storeIconResetTimerRef.current);
+      }
+    };
+  }, []);
+
   return (
     <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="mx-auto flex h-14 max-w-6xl items-center gap-3 px-4">
         {/* 左侧标题需要可收缩：移动端空间有限，必须允许截断，避免把右侧操作区挤出屏幕 */}
         <Link href="/" className="flex min-w-0 flex-1 items-center gap-2 font-semibold">
-          <span className="inline-flex size-8 items-center justify-center rounded-md bg-primary/10 text-primary ring-1 ring-border/50">
+          <span
+            key={storeIconEasterEggKey}
+            onClick={triggerStoreIconEasterEgg}
+            className={[
+              "inline-flex size-8 items-center justify-center rounded-md ring-1 transition-colors",
+              storeIconEasterEggKey > 0 ? "animate-ldc-store-shake" : "",
+              storeIconVariant === "default"
+                ? "bg-primary/10 text-primary ring-border/50"
+                : storeIconVariant === "mint"
+                  ? "bg-emerald-500/15 text-emerald-700 ring-emerald-500/30 dark:text-emerald-400"
+                  : storeIconVariant === "amber"
+                    ? "bg-amber-500/15 text-amber-800 ring-amber-500/30 dark:text-amber-400"
+                    : "bg-pink-500/15 text-pink-800 ring-pink-500/30 dark:text-pink-400",
+            ]
+              .filter(Boolean)
+              .join(" ")}
+            title="点我一下"
+          >
             <Store className="h-4 w-4" />
           </span>
           <span className="min-w-0 truncate max-w-[45vw] sm:max-w-none">{siteName}</span>
